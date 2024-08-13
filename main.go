@@ -23,7 +23,7 @@ func main() {
 
 	rand.NewSource(time.Now().UnixNano())
 
-	for i := 0; i < 1; i++ {
+	for {
 		transaksi := generateRandomTransaction()
 		transaksiJson, errParse := json.Marshal(transaksi)
 		if errParse != nil {
@@ -40,15 +40,15 @@ func main() {
 			fmt.Printf("failed to produce message : %s", err.Error())
 		}
 		fmt.Println("Success produce and send message " + string(transaksiJson))
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 	}
 
 	producer.Flush(15 * 1000)
 }
 
 func generateRandomTransaction() model.Transaksi {
-	//transactionTypes := []string{"pembelian", "transfer", "pembayaran_tagihan"}
-	transactionTypes := []string{"pembelian"}
+	transactionTypes := []string{"pembelian", "transfer", "pembayaran_tagihan"}
+	//transactionTypes := []string{"pembelian"}
 	jenis := transactionTypes[rand.Intn(len(transactionTypes))]
 
 	transaksi := model.Transaksi{
@@ -61,7 +61,7 @@ func generateRandomTransaction() model.Transaksi {
 
 	switch jenis {
 	case "pembelian":
-		transaksi.MetodePembayaran = "kartu_kredit"
+		transaksi.MetodePembayaran = gofakeit.RandomString([]string{"kartu kredit", "debit", "e-wallet", "tunai", "qris"})
 		transaksi.Detail = &model.DetailPembelian{
 			NamaPedagang: gofakeit.Company(),
 			Kategori:     gofakeit.RandomString([]string{"elektronik", "fashion", "makanan", "minuman"}),
@@ -77,9 +77,9 @@ func generateRandomTransaction() model.Transaksi {
 			NomorRekening: generateRandomAccountNumber(),
 		}
 	case "pembayaran_tagihan":
-		transaksi.PenyediaJasa = gofakeit.Company()
+		transaksi.PenyediaJasa = gofakeit.RandomString([]string{"PT Komben", "PT Jasa", "PT Ngebul", "PT Kencur"})
 		transaksi.NomorPelanggan = gofakeit.UUID()
-		transaksi.PeriodeTagihan = "2024-06"
+		transaksi.PeriodeTagihan = gofakeit.RandomString([]string{"2024-06", "2024-07", "2024-08", "2024-09"})
 	}
 
 	return transaksi
